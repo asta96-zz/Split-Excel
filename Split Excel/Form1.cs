@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ExcelDemo;
+using OfficeOpenXml;
+using System;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using ExcelDemo;
-using OfficeOpenXml;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Split_Excel
 {
@@ -51,8 +47,7 @@ namespace Split_Excel
             {
                 label2.Text = openFileDialog1.SafeFileName;
                 label2.Visible = true;
-                FilePath = openFileDialog1.FileName;
-                Preview.Visible = true;
+                FilePath = openFileDialog1.FileName;               
             }
 
         }
@@ -62,7 +57,7 @@ namespace Split_Excel
             if (!string.IsNullOrEmpty(FilePath))
             {
 
-               
+
                 var _filepath = new FileInfo(FilePath);
                 var outPutPath = _filepath.Directory + "\\out";
                 _ = Directory.CreateDirectory(outPutPath);
@@ -75,7 +70,9 @@ namespace Split_Excel
                 int takeCount = RecordCountPerFile;
                 backgroundWorker1.WorkerReportsProgress = true;
                 backgroundWorker1.RunWorkerAsync();
-                progressBar1.Show();
+                progressBar1.Show();               
+                textBox2.Show();
+                textBox2.Text = ".... in progress";
                 for (int skipCount = 0; skipCount < dt.Rows.Count; skipCount += RecordCountPerFile)
                 {
                     string tempPath = Path.Combine(outPutPath, string.Concat(_tempName, "-", fileCount.ToString(), ".xlsx"));
@@ -83,7 +80,7 @@ namespace Split_Excel
                     await ExcelHelper.SaveExcelFile(_table, new FileInfo(tempPath));
                     fileCount++;
                 }
-                
+
             }
         }
 
@@ -106,7 +103,7 @@ namespace Split_Excel
             for (int i = 1; i <= 100; i++)
             {
                 // Wait 50 milliseconds.  
-                Thread.Sleep(50);
+                Thread.Sleep(40);
                 // Report progress.  
                 backgroundWorker1.ReportProgress(i);
             }
@@ -121,8 +118,8 @@ namespace Split_Excel
             label4.Text = e.ProgressPercentage.ToString() + "%";
             if (label4.Text == "100%")
             {
-                label3.Text = "File Split Completed Successfully" + Environment.NewLine + "Path: " + OutFilePath.ToString();
-                label3.Visible = true;
+
+                textBox2.Text = "File Split Completed Successfully" + Environment.NewLine + "Path: " + OutFilePath.ToString();
             }
         }
 
