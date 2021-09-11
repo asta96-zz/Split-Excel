@@ -3,3 +3,7 @@
 ################################################################################
 
 /Split Excel/New Text Document.txt
+.vs/
+/packages
+/../obj
+/Split Excel/obj/Debug/Split Excel.csproj.AssemblyReference.cache
