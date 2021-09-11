@@ -9,16 +9,21 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ExcelDemo;
 using OfficeOpenXml;
+using System.IO;
+using System.Threading;
 
 namespace Split_Excel
 {
     public partial class Form1 : Form
     {
-        internal   string FilePath { get; set; }
+        internal string FilePath { get; set; }
+        internal string OutFilePath { get; set; }
+        internal int defaultRecordCount = 50000;
         public Form1()
         {
             InitializeComponent();
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            progressBar1.Visible = false;
         }
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
@@ -49,14 +54,36 @@ namespace Split_Excel
                 FilePath = openFileDialog1.FileName;
                 Preview.Visible = true;
             }
-            
+
         }
 
-        private void SplitButton_Click(object sender, EventArgs e)
+        private async void SplitButton_ClickAsync(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(FilePath))
             {
 
+               
+                var _filepath = new FileInfo(FilePath);
+                var outPutPath = _filepath.Directory + "\\out";
+                _ = Directory.CreateDirectory(outPutPath);
+                OutFilePath = outPutPath;
+                string _tempName = _filepath.Name.Substring(0, _filepath.Name.IndexOf("."));
+                DataTable dt = ExcelHelper.GetDataTableFromExcel(FilePath, true);
+                int fileCount = 1;
+                int RecordCountPerFile;
+                RecordCountPerFile = int.TryParse(textBox1.Text, out RecordCountPerFile) ? RecordCountPerFile : defaultRecordCount;
+                int takeCount = RecordCountPerFile;
+                backgroundWorker1.WorkerReportsProgress = true;
+                backgroundWorker1.RunWorkerAsync();
+                progressBar1.Show();
+                for (int skipCount = 0; skipCount < dt.Rows.Count; skipCount += RecordCountPerFile)
+                {
+                    string tempPath = Path.Combine(outPutPath, string.Concat(_tempName, "-", fileCount.ToString(), ".xlsx"));
+                    DataTable _table = dt.AsEnumerable().Skip(skipCount).Take(takeCount).CopyToDataTable();
+                    await ExcelHelper.SaveExcelFile(_table, new FileInfo(tempPath));
+                    fileCount++;
+                }
+                
             }
         }
 
@@ -73,5 +100,31 @@ namespace Split_Excel
 
             }
         }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            for (int i = 1; i <= 100; i++)
+            {
+                // Wait 50 milliseconds.  
+                Thread.Sleep(50);
+                // Report progress.  
+                backgroundWorker1.ReportProgress(i);
+            }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            // Change the value of the ProgressBar   
+            progressBar1.Value = e.ProgressPercentage;
+            progressBar1.Show();
+            // Set the text.  
+            label4.Text = e.ProgressPercentage.ToString() + "%";
+            if (label4.Text == "100%")
+            {
+                label3.Text = "File Split Completed Successfully" + Environment.NewLine + "Path: " + OutFilePath.ToString();
+                label3.Visible = true;
+            }
+        }
+
     }
 }
