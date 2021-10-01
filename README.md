@@ -14,3 +14,18 @@ P.S: The output file will be stored and the location will be displayed next to t
 
 *Preview*
 ![previewImage](https://github.com/asta96/Split-Excel/blob/master/Resources/WFA.PNG)
+
+
+**Feature: Group Split**
+
+ Function: Able to create different worksheets based on column grouping in the WorkSheet 1. 
+ 
+ Steps: 
+ 1. Click on **Browse** button
+ 2. Click on **Preview** button
+ 3. Click on Combo box **Group By Column Name** and choose the column 
+ 4. Click on **Group Split** Button to see the output 
+
+Ref snip:
+![V2.0]
+
