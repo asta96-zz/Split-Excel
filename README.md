@@ -27,5 +27,13 @@ P.S: The output file will be stored and the location will be displayed next to t
  4. Click on **Group Split** Button to see the output 
 
 Ref snip:
-![V2.0]
+![V2.0](https://github.com/asta96/Split-Excel/blob/master/Resources/WPA.2.png)
+
+Input
+
+![input](https://github.com/asta96/Split-Excel/blob/master/Resources/inp-1.PNG)
+
+Output
+
+![output](https://github.com/asta96/Split-Excel/blob/master/Resources/out-1.PNG)
 
