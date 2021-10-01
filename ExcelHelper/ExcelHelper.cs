@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using System;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -8,11 +9,11 @@ namespace ExcelDemo
 {
     internal class ExcelHelper
     {
-       
+
 
         public static DataTable GetDataTableFromExcel(string path, bool hasHeader = true)
         {
-            
+
             using (var pck = new OfficeOpenXml.ExcelPackage())
             {
                 using (var stream = File.OpenRead(path))
@@ -48,15 +49,22 @@ namespace ExcelDemo
             }
         }
 
-        public static async Task SaveExcelFile(DataTable table, FileInfo file)
+        public static async Task SaveExcelFile( FileInfo file, bool delete = true,string grpName=null, DataTable dataGrpTpl=null)
         {
-            DeleteIfExists(file);
+             
+            if (delete)
+                DeleteIfExists(file);
             using (var package = new ExcelPackage(file))
             {
-                var ws = package.Workbook.Worksheets.Add("Sheet1");
-                ws.Cells["A1"].LoadFromDataTable(table, true, OfficeOpenXml.Table.TableStyles.Medium1);
+                CreateSheet(dataGrpTpl, package, grpName);
                 await package.SaveAsync();
             }
+        }
+
+        private static void CreateSheet(DataTable table, ExcelPackage package, string SheetName="Sheet1")
+        {
+            var ws = package.Workbook.Worksheets.Add(SheetName);
+            ws.Cells["A1"].LoadFromDataTable(table, true, OfficeOpenXml.Table.TableStyles.Medium1);
         }
     }
 }

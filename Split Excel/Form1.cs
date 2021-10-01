@@ -1,6 +1,7 @@
 ﻿using ExcelDemo;
 using OfficeOpenXml;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
@@ -56,8 +57,6 @@ namespace Split_Excel
         {
             if (!string.IsNullOrEmpty(FilePath))
             {
-
-
                 var _filepath = new FileInfo(FilePath);
                 var outPutPath = _filepath.Directory + "\\out";
                 _ = Directory.CreateDirectory(outPutPath);
@@ -73,16 +72,50 @@ namespace Split_Excel
                 progressBar1.Show();               
                 textBox2.Show();
                 textBox2.Text = ".... in progress";
+                //if(true)
+                //{
+                //    string tempPath = Path.Combine(outPutPath, string.Concat(_tempName, "-", fileCount.ToString(), ".xlsx"));
+                //    splitByGroup(dt, tempPath);
+                //    return;
+                //}
                 for (int skipCount = 0; skipCount < dt.Rows.Count; skipCount += RecordCountPerFile)
                 {
                     string tempPath = Path.Combine(outPutPath, string.Concat(_tempName, "-", fileCount.ToString(), ".xlsx"));
                     DataTable _table = dt.AsEnumerable().Skip(skipCount).Take(takeCount).CopyToDataTable();
-                    await ExcelHelper.SaveExcelFile(_table, new FileInfo(tempPath));
+                    await ExcelHelper.SaveExcelFile( new FileInfo(tempPath), true,"Sheet1", _table);
                     fileCount++;
                 }
 
             }
         }
+
+        private async void splitByGroup(DataTable dt, string tempPath, string groupByColName)
+        {
+            var GroupedByName = dt.AsEnumerable()
+                .GroupBy(r => new { Col1 = r[groupByColName] })
+                .Select(g => new { value = g.Key, ColumnValues = g.CopyToDataTable() })
+                .ToList();
+                for (int i=0;i<GroupedByName.Count;i++)
+            {
+                string name = GroupedByName[i].value.Col1.ToString();
+                var groupedTable = (DataTable)GroupedByName[i].ColumnValues;
+                string sheetName = name.Length < 31 ? name : string.Concat("sheet",$"-${i}");
+                if (i == 0)
+                {                   
+                    await ExcelHelper.SaveExcelFile(new FileInfo(tempPath), true, sheetName, groupedTable);
+                }
+                else
+                {
+                    await ExcelHelper.SaveExcelFile(new FileInfo(tempPath), false, sheetName, groupedTable);
+
+                }
+
+            }
+                //.Select(g => g.OrderBy(r => r["Rep"]).First())
+                
+            //dt.AsEnumerable().GroupBy(x=>x.)
+        }
+        
 
         private void Preview_Click(object sender, EventArgs e)
         {
@@ -91,6 +124,13 @@ namespace Split_Excel
                 var dt = ExcelHelper.GetDataTableFromExcel(FilePath, true);
                 dataGridView1.DataSource = dt;
                 dataGridView1.Visible = true;
+                List<string> colmOptions = new List<string>();
+              var getColmName=  dt.AsEnumerable().Select(g=>g.Table.Columns).ToList().FirstOrDefault();
+                foreach(var x in getColmName)
+                {
+                    colmOptions.Add(x.ToString());
+                }
+                comboBox1.Items.AddRange(colmOptions.ToArray());
             }
             else
             {
@@ -123,5 +163,25 @@ namespace Split_Excel
             }
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var _filepath = new FileInfo(FilePath);
+            var outPutPath = _filepath.Directory + "\\out";
+            _ = Directory.CreateDirectory(outPutPath);
+            OutFilePath = outPutPath;
+            string _tempName = _filepath.Name.Substring(0, _filepath.Name.IndexOf("."));
+            DataTable dt = ExcelHelper.GetDataTableFromExcel(FilePath, true);
+            backgroundWorker1.WorkerReportsProgress = true;
+            backgroundWorker1.RunWorkerAsync();
+            progressBar1.Show();
+            textBox2.Show();
+            textBox2.Text = ".... in progress";
+            if (true)
+            {
+                string tempPath = Path.Combine(outPutPath, string.Concat(_tempName, ".xlsx"));
+                splitByGroup(dt, tempPath,comboBox1.SelectedItem.ToString());
+                return;
+            }
+        }
     }
 }

@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Split Excel", "Split Excel\
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ExcelHelper", "ExcelHelper\ExcelHelper.shproj", "{1FBBCC42-AE2D-451F-AE2F-38AF80F925AA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1FF53C7D-6943-45EA-88C5-A26CE33D2F27}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ExcelHelper\ExcelHelper.projitems*{1fbbcc42-ae2d-451f-ae2f-38af80f925aa}*SharedItemsImports = 13
